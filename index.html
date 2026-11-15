@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Pokémon Base Set Pack Opener</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@400;500&display=swap');
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -36,7 +37,7 @@
     /* ── Header ── */
     header {
       width: 100%;
-      padding: 28px 0 16px;
+      padding: 28px 70px 16px;
       text-align: center;
       border-bottom: 1px solid var(--border);
       background: linear-gradient(180deg, #13141a 0%, transparent 100%);
@@ -92,8 +93,12 @@
       gap: 14px;
       cursor: pointer;
       transition: transform .2s;
+      background: none;
+      border: none;
+      color: inherit;
+      font: inherit;
     }
-    .pack-choice:hover { transform: translateY(-6px); }
+    .pack-choice:hover, .pack-choice:focus-visible { transform: translateY(-6px); outline: none; }
     .pack-choice img {
       width: 160px;
       border-radius: 10px;
@@ -101,7 +106,7 @@
       border: 2px solid var(--border);
       transition: border-color .2s, box-shadow .2s;
     }
-    .pack-choice:hover img {
+    .pack-choice:hover img, .pack-choice:focus-visible img {
       border-color: var(--gold);
       box-shadow: 0 12px 40px rgba(240,192,64,.25);
     }
@@ -113,7 +118,7 @@
       text-transform: uppercase;
       color: var(--muted);
     }
-    .pack-choice:hover span { color: var(--gold); }
+    .pack-choice:hover span, .pack-choice:focus-visible span { color: var(--gold); }
 
     /* ── Opening Screen ── */
     #opening-screen {
@@ -123,7 +128,6 @@
       gap: 24px;
     }
 
-    /* progress bar */
     .progress-bar {
       width: 100%;
       max-width: 420px;
@@ -145,21 +149,25 @@
       text-transform: uppercase;
     }
 
-    /* card display */
     .card-display {
       position: relative;
       width: 280px;
+      max-width: 100%;
+      perspective: 900px;
     }
     .card-display img {
       width: 100%;
+      min-height: 390px;
       border-radius: 14px;
       box-shadow: 0 16px 60px rgba(0,0,0,.8);
       display: block;
+      background: #1a1b25;
     }
     .rarity-badge {
       position: absolute;
       top: -12px;
       right: -12px;
+      z-index: 2;
       font-family: 'Unbounded', sans-serif;
       font-size: .55rem;
       font-weight: 700;
@@ -168,21 +176,22 @@
       padding: 4px 10px;
       border-radius: 20px;
       border: 1.5px solid;
+      backdrop-filter: blur(4px);
+      background-color: rgba(11,12,16,.75);
     }
     .badge-rare    { background: rgba(240,192,64,.15); color: var(--rare);     border-color: var(--rare); }
     .badge-uncommon{ background: rgba(168,200,232,.15); color: var(--uncommon); border-color: var(--uncommon); }
     .badge-common  { background: rgba(200,200,200,.12); color: var(--common);   border-color: var(--common); }
+    .badge-holo    { background: rgba(255,120,220,.15); color: #ff9ff3; border-color: #ff9ff3; }
 
     .card-name {
       text-align: center;
-      margin-top: 16px;
       font-family: 'Unbounded', sans-serif;
       font-size: .85rem;
       font-weight: 700;
       color: var(--text);
     }
 
-    /* buttons */
     .btn {
       font-family: 'Unbounded', sans-serif;
       font-size: .7rem;
@@ -196,16 +205,9 @@
       transition: background .2s, transform .1s;
     }
     .btn:active { transform: scale(.97); }
-    .btn-gold {
-      background: var(--gold);
-      color: #0b0c10;
-    }
+    .btn-gold { background: var(--gold); color: #0b0c10; }
     .btn-gold:hover { background: #f5d060; }
-    .btn-outline {
-      background: transparent;
-      color: var(--muted);
-      border: 1.5px solid var(--border);
-    }
+    .btn-outline { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
     .btn-outline:hover { border-color: var(--muted); color: var(--text); }
 
     .btn-row {
@@ -215,7 +217,7 @@
       justify-content: center;
     }
 
-    /* ── All Cards Tray (shown after last card) ── */
+    /* ── Summary ── */
     #summary-screen {
       display: none;
       flex-direction: column;
@@ -239,23 +241,23 @@
     }
     .card-tray img {
       width: 100px;
+      min-height: 140px;
+      background: #1a1b25;
       border-radius: 8px;
       box-shadow: 0 4px 16px rgba(0,0,0,.6);
       transition: transform .15s;
       cursor: default;
     }
     .card-tray img:hover { transform: scale(1.08); }
+    .card-tray img.tier-holo { outline: 2px solid #ff9ff3; outline-offset: 2px; }
+    .card-tray img.tier-rare { outline: 2px solid var(--gold); outline-offset: 2px; }
 
-    /* ── Upgrades ── */
-    .badge-holo { background: rgba(255,120,220,.15); color: #ff9ff3; border-color: #ff9ff3; }
-
-    .card-display { perspective: 900px; }
+    /* ── Reveal / holo effects ── */
     .card-display img.flip { animation: reveal .45s ease; }
     @keyframes reveal {
       from { transform: rotateY(90deg) scale(.9); opacity: 0; }
       to   { transform: rotateY(0) scale(1);      opacity: 1; }
     }
-
     .card-display.rare img { box-shadow: 0 16px 60px rgba(240,192,64,.3); }
     .card-display.holo img { box-shadow: 0 16px 60px rgba(255,150,230,.4); }
     .card-display.holo::after {
@@ -274,9 +276,6 @@
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
-
-    .card-tray img.tier-holo { outline: 2px solid #ff9ff3; outline-offset: 2px; }
-    .card-tray img.tier-rare { outline: 2px solid var(--gold); outline-offset: 2px; }
 
     /* ── Card Index ── */
     .index-btn {
@@ -397,7 +396,6 @@
       border-radius: 10px;
     }
 
-    /* hidden util */
     .hidden { display: none !important; }
   </style>
 </head>
@@ -408,13 +406,13 @@
   <p>Pack Opener</p>
 </header>
 
-<button class="index-btn" onclick="openIndex()" title="Card Index">📖</button>
+<button class="index-btn" onclick="openIndex()" title="Card Index" aria-label="Open card index">📖</button>
 
 <div id="index-overlay" class="hidden">
   <div class="index-panel">
     <div class="index-top">
       <h2>Card Index</h2>
-      <button class="index-close" onclick="closeIndex()">✕</button>
+      <button class="index-close" onclick="closeIndex()" aria-label="Close">✕</button>
     </div>
     <div class="set-tabs" id="set-tabs"></div>
     <div class="index-count" id="index-count"></div>
@@ -428,21 +426,21 @@
   <section id="pack-select">
     <h2>Choose a pack to open</h2>
     <div class="pack-grid">
-      <div class="pack-choice" onclick="startOpening('Blastoise')">
+      <button class="pack-choice" onclick="startOpening('Blastoise')">
         <img src="BlastoisePack_BS.png" alt="Blastoise Pack"
-             onerror="this.style.background='#1a1b25';this.style.height='220px';this.alt='Blastoise Pack'">
+             onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Blastoise</span>
-      </div>
-      <div class="pack-choice" onclick="startOpening('Charizard')">
+      </button>
+      <button class="pack-choice" onclick="startOpening('Charizard')">
         <img src="CharizardPack_BS.png" alt="Charizard Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Charizard</span>
-      </div>
-      <div class="pack-choice" onclick="startOpening('Venusaur')">
+      </button>
+      <button class="pack-choice" onclick="startOpening('Venusaur')">
         <img src="VenusaurPack_BS.png" alt="Venusaur Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Venusaur</span>
-      </div>
+      </button>
     </div>
   </section>
 
@@ -479,68 +477,98 @@
 
 <script>
   // ── Base Set card data ──────────────────────────────────────────────
-  // Numbers 1–102, name + rarity tier
-  // Rares: 1–16 | Uncommons: 17–64 | Commons: 65–102
-const CARDS = [
-  { n:1,  name:"Alakazam" },        { n:2,  name:"Blastoise" },
-  { n:3,  name:"Chansey" },         { n:4,  name:"Charizard" },
-  { n:5,  name:"Clefairy" },        { n:6,  name:"Gyarados" },
-  { n:7,  name:"Hitmonchan" },      { n:8,  name:"Machamp" },
-  { n:9,  name:"Magneton" },        { n:10, name:"Mewtwo" },
-  { n:11, name:"Nidoking" },        { n:12, name:"Ninetales" },
-  { n:13, name:"Poliwrath" },       { n:14, name:"RaichuBase" },
-  { n:15, name:"Venusaur" },        { n:16, name:"Zapdos" },
-  { n:17, name:"Beedrill" },        { n:18, name:"Dragonair" },
-  { n:19, name:"Dugtrio" },         { n:20, name:"Electabuzz" },
-  { n:21, name:"Electrode" },       { n:22, name:"Pidgeotto" },
-  { n:23, name:"Arcanine" },        { n:24, name:"Charmeleon" },
-  { n:25, name:"Dewgong" },         { n:26, name:"Dratini" },
-  { n:27, name:"Farfetchd" },       { n:28, name:"Growlithe" },
-  { n:29, name:"Haunter" },         { n:30, name:"Ivysaur" },
-  { n:31, name:"JynxBase" },        { n:32, name:"Kadabra" },
-  { n:33, name:"Kakuna" },          { n:34, name:"Machoke" },
-  { n:35, name:"Magikarp" },        { n:36, name:"Magmar" },
-  { n:37, name:"Nidorino" },        { n:38, name:"Poliwhirl" },
-  { n:39, name:"Porygon" },         { n:40, name:"Raticate" },
-  { n:41, name:"Seel" },            { n:42, name:"Wartortle" },
-  { n:43, name:"Abra" },            { n:44, name:"Bulbasaur" },
-  { n:45, name:"Caterpie" },        { n:46, name:"Charmander" },
-  { n:47, name:"Diglett" },         { n:48, name:"Doduo" },
-  { n:49, name:"Drowzee" },         { n:50, name:"Gastly" },
-  { n:51, name:"Koffing" },         { n:52, name:"Machop" },
-  { n:53, name:"Magnemite" },       { n:54, name:"Metapod" },
-  { n:55, name:"Nidoran" },         { n:56, name:"Onix" },
-  { n:57, name:"Pidgey" },          { n:58, name:"Pikachu" },
-  { n:59, name:"Poliwag" },         { n:60, name:"Ponyta" },
-  { n:61, name:"Rattata" },         { n:62, name:"Sandshrew" },
-  { n:63, name:"Squirtle" },        { n:64, name:"Starmie" },
-  { n:65, name:"Staryu" },          { n:66, name:"Tangela" },
-  { n:67, name:"Voltorb" },         { n:68, name:"Vulpix" },
-  { n:69, name:"Weedle" },          { n:70, name:"ClefairyDoll" },
-  { n:71, name:"ComputerSearch" },  { n:72, name:"DevolutionSpray" },
-  { n:73, name:"ImposterProfessorOak" }, { n:74, name:"ItemFinder" },
-  { n:75, name:"Lass" },            { n:76, name:"PokemonBreeder" },
-  { n:77, name:"PokemonTrader" },   { n:78, name:"ScoopUp" },
-  { n:79, name:"SuperEnergyRemoval" }, { n:80, name:"Defender" },
-  { n:81, name:"EnergyRetrieval" }, { n:82, name:"FullHeal" },
-  { n:83, name:"Maintenance" },     { n:84, name:"PlusPower" },
-  { n:85, name:"PokemonCenter" },   { n:86, name:"Pokemon_Flute" },
-  { n:87, name:"Pokedex" },         { n:88, name:"Professor_Oak" },
-  { n:89, name:"Revive" },          { n:90, name:"SuperPotion" },
-  { n:91, name:"Bill" },            { n:92, name:"EnergyRemoval" },
-  { n:93, name:"GustOfWind" },      { n:94, name:"Potion" },
-  { n:95, name:"Switch" },          { n:96, name:"DoubleColorlessEnergy" },
-  { n:97, name:"FightingEnergy" },  { n:98, name:"FireEnergy" },
-  { n:99, name:"GrassEnergy" },     { n:100,name:"LightningEnergy" },
-  { n:101,name:"PsychicEnergy" },   { n:102,name:"WaterEnergy" },
-];
+  // 1–16 holo rares | 17–22 & 70–79 rares | 23–42, 80–90 & 96 uncommons
+  // 43–69 & 91–95 commons | 97–102 basic energy
+  // `name` is used to build the image filename; use displayName() for the UI.
+  const CARDS = [
+    { n:1,  name:"Alakazam" },        { n:2,  name:"Blastoise" },
+    { n:3,  name:"Chansey" },         { n:4,  name:"Charizard" },
+    { n:5,  name:"Clefairy" },        { n:6,  name:"Gyarados" },
+    { n:7,  name:"Hitmonchan" },      { n:8,  name:"Machamp" },
+    { n:9,  name:"Magneton" },        { n:10, name:"Mewtwo" },
+    { n:11, name:"Nidoking" },        { n:12, name:"Ninetales" },
+    { n:13, name:"Poliwrath" },       { n:14, name:"RaichuBase" },
+    { n:15, name:"Venusaur" },        { n:16, name:"Zapdos" },
+    { n:17, name:"Beedrill" },        { n:18, name:"Dragonair" },
+    { n:19, name:"Dugtrio" },         { n:20, name:"Electabuzz" },
+    { n:21, name:"Electrode" },       { n:22, name:"Pidgeotto" },
+    { n:23, name:"Arcanine" },        { n:24, name:"Charmeleon" },
+    { n:25, name:"Dewgong" },         { n:26, name:"Dratini" },
+    { n:27, name:"Farfetchd" },       { n:28, name:"Growlithe" },
+    { n:29, name:"Haunter" },         { n:30, name:"Ivysaur" },
+    { n:31, name:"JynxBase" },        { n:32, name:"Kadabra" },
+    { n:33, name:"Kakuna" },          { n:34, name:"Machoke" },
+    { n:35, name:"Magikarp" },        { n:36, name:"Magmar" },
+    { n:37, name:"Nidorino" },        { n:38, name:"Poliwhirl" },
+    { n:39, name:"Porygon" },         { n:40, name:"Raticate" },
+    { n:41, name:"Seel" },            { n:42, name:"Wartortle" },
+    { n:43, name:"Abra" },            { n:44, name:"Bulbasaur" },
+    { n:45, name:"Caterpie" },        { n:46, name:"Charmander" },
+    { n:47, name:"Diglett" },         { n:48, name:"Doduo" },
+    { n:49, name:"Drowzee" },         { n:50, name:"Gastly" },
+    { n:51, name:"Koffing" },         { n:52, name:"Machop" },
+    { n:53, name:"Magnemite" },       { n:54, name:"Metapod" },
+    { n:55, name:"Nidoran" },         { n:56, name:"Onix" },
+    { n:57, name:"Pidgey" },          { n:58, name:"Pikachu" },
+    { n:59, name:"Poliwag" },         { n:60, name:"Ponyta" },
+    { n:61, name:"Rattata" },         { n:62, name:"Sandshrew" },
+    { n:63, name:"Squirtle" },        { n:64, name:"Starmie" },
+    { n:65, name:"Staryu" },          { n:66, name:"Tangela" },
+    { n:67, name:"Voltorb" },         { n:68, name:"Vulpix" },
+    { n:69, name:"Weedle" },          { n:70, name:"ClefairyDoll" },
+    { n:71, name:"ComputerSearch" },  { n:72, name:"DevolutionSpray" },
+    { n:73, name:"ImposterProfessorOak" }, { n:74, name:"ItemFinder" },
+    { n:75, name:"Lass" },            { n:76, name:"PokemonBreeder" },
+    { n:77, name:"PokemonTrader" },   { n:78, name:"ScoopUp" },
+    { n:79, name:"SuperEnergyRemoval" }, { n:80, name:"Defender" },
+    { n:81, name:"EnergyRetrieval" }, { n:82, name:"FullHeal" },
+    { n:83, name:"Maintenance" },     { n:84, name:"PlusPower" },
+    { n:85, name:"PokemonCenter" },   { n:86, name:"Pokemon_Flute" },
+    { n:87, name:"Pokedex" },         { n:88, name:"Professor_Oak" },
+    { n:89, name:"Revive" },          { n:90, name:"SuperPotion" },
+    { n:91, name:"Bill" },            { n:92, name:"EnergyRemoval" },
+    { n:93, name:"GustOfWind" },      { n:94, name:"Potion" },
+    { n:95, name:"Switch" },          { n:96, name:"DoubleColorlessEnergy" },
+    { n:97, name:"FightingEnergy" },  { n:98, name:"FireEnergy" },
+    { n:99, name:"GrassEnergy" },     { n:100,name:"LightningEnergy" },
+    { n:101,name:"PsychicEnergy" },   { n:102,name:"WaterEnergy" },
+  ];
 
-  // pad number to 3 digits just in case — adjust if your files are not zero-padded
   const CARD_DIR = 'Base Set/';
 
   function cardFilename(num, name) {
     const safeName = name.replace(/[♀♂]/g, '').replace(/[^a-zA-Z0-9_\- ']/g, '').trim().replace(/ /g, '_');
     return encodeURI(`${CARD_DIR}${num}_${safeName}_BS.jpg`);
+  }
+
+  // Human-readable name for the UI (filenames keep using card.name)
+  const DISPLAY_OVERRIDES = {
+    Farfetchd: "Farfetch'd",
+    Nidoran: 'Nidoran ♂',
+    PlusPower: 'PlusPower',
+    GustOfWind: 'Gust of Wind',
+  };
+  function displayName(card) {
+    if (DISPLAY_OVERRIDES[card.name]) return DISPLAY_OVERRIDES[card.name];
+    return card.name
+      .replace(/Base$/, '')
+      .replace(/_/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/Pokemon/g, 'Pokémon')
+      .replace(/Pokedex/g, 'Pokédex')
+      .trim();
+  }
+
+  // Swap a broken image for a simple placeholder so layout doesn't collapse
+  function imgFallback(img, label) {
+    img.onerror = () => {
+      img.onerror = null;
+      img.alt = label;
+      img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="250" height="350">` +
+        `<rect width="100%" height="100%" fill="#1a1b25"/>` +
+        `<text x="50%" y="50%" fill="#6b6c80" font-family="sans-serif" font-size="16" text-anchor="middle">${label.replace(/[<>&]/g,'')}</text></svg>`);
+    };
   }
 
   function getTier(n) {
@@ -575,19 +603,15 @@ const CARDS = [
     return picked;
   }
 
-function buildPack() {
-  // 33% chance of a holo, 67% chance of a non-holo rare
-  let rare;
-  if (Math.random() < 0.33) {
-    rare = pickRandom(HOLOS, 1);
-  } else {
-    rare = pickRandom(NONHOLO_R, 1);
+  function buildPack() {
+    // 1 in 3 rare slots is a holo
+    const rare = Math.random() < 0.33 ? pickRandom(HOLOS, 1) : pickRandom(NONHOLO_R, 1);
+    const uncommons = pickRandom(UNCOMMONS, 3);
+    const commons   = pickRandom(COMMONS, 6);
+    const energy    = pickRandom(ENERGIES, 1);
+    // energy first, rare last (the big reveal)
+    return [...energy, ...commons, ...uncommons, ...rare];
   }
-  const uncommons = pickRandom(UNCOMMONS, 3);
-  const commons   = pickRandom(COMMONS, 6);
-  const energy    = pickRandom(ENERGIES, 1);
-  return [...energy, ...commons, ...uncommons, ...rare];
-}
 
   // ── State ───────────────────────────────────────────────────────────
   let currentPack = [];
@@ -599,6 +623,7 @@ function buildPack() {
       document.getElementById(s).style.display = 'none';
     });
     document.getElementById(id).style.display = 'flex';
+    window.scrollTo(0, 0);
   }
 
   function startOpening(packName) {
@@ -613,34 +638,31 @@ function buildPack() {
     const card   = currentPack[idx];
     const total  = currentPack.length;
     const rarity = getRarity(card.n);
+    const label  = displayName(card);
 
     document.getElementById('progress-label').textContent = `Card ${idx+1} of ${total}`;
     document.getElementById('progress-fill').style.width  = `${((idx+1)/total)*100}%`;
 
     const img = document.getElementById('card-img');
     img.classList.remove('flip'); void img.offsetWidth; img.classList.add('flip');
-    img.onerror = () => console.warn('Missing image:', img.src);
+    imgFallback(img, label);
     img.src   = cardFilename(card.n, card.name);
-    img.alt   = card.name;
+    img.alt   = label;
 
     const disp = document.querySelector('.card-display');
     disp.classList.remove('holo', 'rare');
     if (rarity.tier === 'holo') disp.classList.add('holo');
     else if (rarity.tier === 'rare') disp.classList.add('rare');
 
-    document.getElementById('card-name').textContent = card.name;
+    document.getElementById('card-name').textContent = label;
     markOwned('base', card.n);
 
     const badge = document.getElementById('rarity-badge');
     badge.textContent  = rarity.label;
     badge.className    = `rarity-badge ${rarity.cls}`;
 
-    const btn = document.getElementById('next-btn');
-    if (idx === total - 1) {
-      btn.textContent = 'See All Cards ✦';
-    } else {
-      btn.textContent = 'Next Card →';
-    }
+    document.getElementById('next-btn').textContent =
+      idx === total - 1 ? 'See All Cards ✦' : 'Next Card →';
   }
 
   function nextCard() {
@@ -657,10 +679,12 @@ function buildPack() {
     const tray = document.getElementById('card-tray');
     tray.innerHTML = '';
     currentPack.forEach(card => {
+      const label = displayName(card);
       const img = document.createElement('img');
+      imgFallback(img, label);
       img.src   = cardFilename(card.n, card.name);
-      img.alt   = card.name;
-      img.title = card.name;
+      img.alt   = label;
+      img.title = label;
       img.className = 'tier-' + getTier(card.n);
       tray.appendChild(img);
     });
@@ -673,7 +697,13 @@ function buildPack() {
   document.addEventListener('keydown', e => {
     const opening = document.getElementById('opening-screen').style.display === 'flex';
     const indexOpen = !document.getElementById('index-overlay').classList.contains('hidden');
-    if (opening && !indexOpen && (e.key === 'ArrowRight' || e.key === ' ')) {
+    if (!opening || indexOpen) return;
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextCard();
+    } else if (e.key === ' ') {
+      // A focused button already handles Space itself; avoid advancing twice
+      if (e.target && e.target.tagName === 'BUTTON') return;
       e.preventDefault();
       nextCard();
     }
@@ -723,16 +753,18 @@ function buildPack() {
     grid.innerHTML = '';
     set.cards.forEach(c => {
       const qty = owned[c.n] || 0;
+      const label = displayName(c);
       const div = document.createElement('div');
       div.className = 'index-card' + (qty ? ' owned' : '');
       const img = document.createElement('img');
       img.loading = 'lazy';
+      imgFallback(img, qty ? label : '?');
       img.src = cardFilename(c.n, c.name);
-      img.alt = qty ? c.name : 'Unknown card';
+      img.alt = qty ? label : 'Unknown card';
       div.appendChild(img);
       const num = document.createElement('div');
       num.className = 'num';
-      num.textContent = qty ? `#${c.n} ${c.name}` : `#${c.n} ???`;
+      num.textContent = qty ? `#${c.n} ${label}` : `#${c.n} ???`;
       div.appendChild(num);
       if (qty > 1) {
         const q = document.createElement('div');
@@ -754,6 +786,10 @@ function buildPack() {
     document.body.style.overflow = '';
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeIndex(); });
+  // Click on the dark backdrop closes the index
+  document.getElementById('index-overlay').addEventListener('click', e => {
+    if (e.target.id === 'index-overlay') closeIndex();
+  });
 
   // init
   show('pack-select');
