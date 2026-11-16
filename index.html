@@ -427,17 +427,17 @@
     <h2>Choose a pack to open</h2>
     <div class="pack-grid">
       <button class="pack-choice" onclick="startOpening('Blastoise')">
-        <img src="Base%20Set/BlastoisePack_BS.png" alt="Blastoise Pack"
+        <img data-pack="blastoise" alt="Blastoise Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Blastoise</span>
       </button>
       <button class="pack-choice" onclick="startOpening('Charizard')">
-        <img src="Base%20Set/CharizardPack_BS.png" alt="Charizard Pack"
+        <img data-pack="charizard" alt="Charizard Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Charizard</span>
       </button>
       <button class="pack-choice" onclick="startOpening('Venusaur')">
-        <img src="Base%20Set/VenusaurPack_BS.png" alt="Venusaur Pack"
+        <img data-pack="venusaur" alt="Venusaur Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Venusaur</span>
       </button>
@@ -536,9 +536,38 @@
 
   const CARD_DIR = 'Base Set/';
 
+  // Matches real files on the server by card number, so naming differences don't matter
+  const FILE_MAP = {};   // card number -> relative path
+  const PACK_MAP = {};   // 'blastoise' -> relative path
+  const encPath = p => p.split('/').map(encodeURIComponent).join('/');
+
   function cardFilename(num, name) {
+    if (FILE_MAP[num]) return encPath(FILE_MAP[num]);
     const safeName = name.replace(/[♀♂]/g, '').replace(/[^a-zA-Z0-9_\- ']/g, '').trim().replace(/ /g, '_');
     return encodeURI(`${CARD_DIR}${num}_${safeName}_BS.jpg`).replace(/'/g, '%27');
+  }
+
+  async function loadFileList() {
+    try {
+      const res = await fetch('/api/files');
+      const files = await res.json();
+      files.forEach(path => {
+        const base = path.split('/').pop();
+        const m = base.match(/^0*(\d+)[_\-\s]/);
+        if (m && !/pack/i.test(base)) FILE_MAP[parseInt(m[1], 10)] = path;
+        const lower = base.toLowerCase();
+        ['blastoise', 'charizard', 'venusaur'].forEach(p => {
+          if (lower.includes(p) && lower.includes('pack')) PACK_MAP[p] = path;
+        });
+      });
+      console.log('Cards matched:', Object.keys(FILE_MAP).length, 'of 102; packs:', PACK_MAP);
+    } catch (e) {
+      console.warn('Could not load /api/files', e);
+    }
+    document.querySelectorAll('img[data-pack]').forEach(img => {
+      const p = PACK_MAP[img.dataset.pack];
+      if (p) img.src = encPath(p);
+    });
   }
 
   // Human-readable name for the UI (filenames keep using card.name)
@@ -793,6 +822,7 @@
 
   // init
   show('pack-select');
+  loadFileList();
 </script>
 </body>
 </html>
