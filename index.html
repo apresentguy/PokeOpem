@@ -427,17 +427,17 @@
     <h2>Choose a pack to open</h2>
     <div class="pack-grid">
       <button class="pack-choice" onclick="startOpening('Blastoise')">
-        <img src="BlastoisePack_BS.png" alt="Blastoise Pack"
+        <img src="Base%20Set/BlastoisePack_BS.png" alt="Blastoise Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Blastoise</span>
       </button>
       <button class="pack-choice" onclick="startOpening('Charizard')">
-        <img src="CharizardPack_BS.png" alt="Charizard Pack"
+        <img src="Base%20Set/CharizardPack_BS.png" alt="Charizard Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Charizard</span>
       </button>
       <button class="pack-choice" onclick="startOpening('Venusaur')">
-        <img src="VenusaurPack_BS.png" alt="Venusaur Pack"
+        <img src="Base%20Set/VenusaurPack_BS.png" alt="Venusaur Pack"
              onerror="this.style.background='#1a1b25';this.style.height='220px'">
         <span>Venusaur</span>
       </button>
@@ -538,7 +538,7 @@
 
   function cardFilename(num, name) {
     const safeName = name.replace(/[♀♂]/g, '').replace(/[^a-zA-Z0-9_\- ']/g, '').trim().replace(/ /g, '_');
-    return encodeURI(`${CARD_DIR}${num}_${safeName}_BS.jpg`);
+    return encodeURI(`${CARD_DIR}${num}_${safeName}_BS.jpg`).replace(/'/g, '%27');
   }
 
   // Human-readable name for the UI (filenames keep using card.name)
