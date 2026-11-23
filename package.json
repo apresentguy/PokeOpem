@@ -1,0 +1,10 @@
+{
+  "name": "my-pokemon-site",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/make-filelist.js"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0"
+  }
+}
