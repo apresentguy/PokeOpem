@@ -396,6 +396,52 @@
       border-radius: 10px;
     }
 
+    /* ── Quick button + packs opened ── */
+    .quick-btn {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 40;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--gold);
+      background: rgba(240,192,64,.15);
+      color: var(--gold);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s;
+    }
+    .quick-btn:hover { background: rgba(240,192,64,.3); }
+    .quick-btn:active { transform: translateX(-50%) scale(.96); }
+
+    .packs-opened {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 50;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: .65rem;
+      line-height: 1.5;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .packs-opened strong {
+      display: block;
+      font-family: 'Unbounded', sans-serif;
+      font-size: .7rem;
+      color: var(--gold);
+    }
+
     .hidden { display: none !important; }
   </style>
 </head>
@@ -407,6 +453,9 @@
 </header>
 
 <button class="index-btn" onclick="openIndex()" title="Card Index" aria-label="Open card index">📖</button>
+
+<div class="packs-opened" id="packs-opened"></div>
+<button class="quick-btn" id="quick-btn" onclick="quickAction()">Quick Open ⚡</button>
 
 <div id="index-overlay" class="hidden">
   <div class="index-panel">
@@ -645,6 +694,49 @@
   // ── State ───────────────────────────────────────────────────────────
   let currentPack = [];
   let currentIdx  = 0;
+  let lastPack    = 'Blastoise';
+
+  // ── Packs opened tracker ────────────────────────────────────────────
+  function loadPacksOpened() {
+    try { return JSON.parse(localStorage.getItem('tcg-packs-opened')) || { total: 0 }; }
+    catch { return { total: 0 }; }
+  }
+  let packsOpened = loadPacksOpened();
+
+  function recordPack(name) {
+    packsOpened.total = (packsOpened.total || 0) + 1;
+    packsOpened[name] = (packsOpened[name] || 0) + 1;
+    try { localStorage.setItem('tcg-packs-opened', JSON.stringify(packsOpened)); } catch {}
+    renderPacksOpened();
+  }
+
+  function renderPacksOpened() {
+    document.getElementById('packs-opened').innerHTML =
+      `Packs Opened<strong>${packsOpened.total || 0}</strong>` +
+      `Blastoise ${packsOpened.Blastoise || 0} · ` +
+      `Charizard ${packsOpened.Charizard || 0} · ` +
+      `Venusaur ${packsOpened.Venusaur || 0}`;
+  }
+
+  // ── Quick button (does whatever the current screen's main action is) ──
+  function updateQuickBtn() {
+    const btn = document.getElementById('quick-btn');
+    const onOpening = document.getElementById('opening-screen').style.display === 'flex';
+    const onSummary = document.getElementById('summary-screen').style.display === 'flex';
+    if (onOpening) {
+      btn.textContent = currentIdx === currentPack.length - 1 ? 'See All ✦' : 'Next →';
+    } else if (onSummary) {
+      btn.textContent = 'Another Pack ↻';
+    } else {
+      btn.textContent = 'Quick Open ⚡';
+    }
+  }
+
+  function quickAction() {
+    const onOpening = document.getElementById('opening-screen').style.display === 'flex';
+    if (onOpening) nextCard();
+    else startOpening(lastPack);   // pack-select or summary: open another pack
+  }
 
   // ── Screens ─────────────────────────────────────────────────────────
   function show(id) {
@@ -653,9 +745,12 @@
     });
     document.getElementById(id).style.display = 'flex';
     window.scrollTo(0, 0);
+    updateQuickBtn();
   }
 
   function startOpening(packName) {
+    lastPack = packName;
+    recordPack(packName);
     currentPack = buildPack();
     currentPack.forEach(c => { new Image().src = cardFilename(c.n, c.name); });
     currentIdx  = 0;
@@ -690,6 +785,7 @@
 
     document.getElementById('next-btn').textContent =
       idx === total - 1 ? 'See All Cards ✦' : 'Next Card →';
+    updateQuickBtn();
   }
 
   function nextCard() {
@@ -849,9 +945,8 @@
   });
 
   // init
+  renderPacksOpened();
   show('pack-select');
-  loadFileList();
-  loadRemoteCollection();
 </script>
 </body>
-</html>wwe3ss
+</html>
